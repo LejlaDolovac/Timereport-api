@@ -14,8 +14,8 @@ module.exports.get = async(req, res) => {
 module.exports.post = async(req, res, err) => {
     console.log('post');
     try {
-        let UserInformation = req.body;
-        let resp = await UserInformation.create(UserInformation);
+        let userData = req.body;
+        let resp = await UserInformation.create(userData);
         res.status(200).send(resp);
         
     } catch(err) {
