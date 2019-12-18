@@ -41,12 +41,12 @@ mongoose.connect(`mongodb+srv://LejlaDolovac:guess123@cluster0-gxwz7.mongodb.net
 
         let msg = req.body.text;
         let userName = req.body.user_name;
-        let newDate = req.body.newDate;
+        let time = req.body.time;
 
         const data = {
             "userId": userName,
             "comment": msg,
-            "time": newDate
+            "time": time
         };
         console.log(data);
 
