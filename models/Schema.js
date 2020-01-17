@@ -4,7 +4,7 @@ let Schema = mongoose.Schema;
 let UserSchema = new Schema({
     userId: String,
     time: Number,
-    date: Date,
+    date:  Date,
     comment: String,
     googleID: String
 

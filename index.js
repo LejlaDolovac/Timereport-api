@@ -3,42 +3,57 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const authPassport = require('./authPassport/authRoutes');
 const passportSetup = require('./passport/passportSetup');
-const keys = require('./passport/keys');
 const bodyParser = require('body-parser'); 
 const exphbs = require('express-handlebars');
 const nodemailer = require('nodemailer');
 const path = require('path');
+const cors = require('cors');
+const tocToHtml = require('toc-to-html');
+const { jsonToTableHtmlString } = require('json-table-converter');
+const config = require('./config');
+
+
 
 let UserInformation = require('./models/Schema');
+let monthReportSchema = require('./models/monthReportSchema');
+
 
 
 let app = express();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors()); 
 
 
 app.use('/auth', authPassport);
 
 
+
+
+
+// NODEMAILER
+
 const transporter = nodemailer.createTransport({
     service: 'hotmail',
     auth: {
-      user: 'llleyla_@hotmail.com',
-      pass: 'Intepizza91'
+      user: config.email,
+      pass: config.password
     }
   });
 
 const mailOptions = {
-    from: 'llleyla_@hotmail.com',
-    to: 'llleyla_@hotmail.com', // skapa så att den känner av vem som är inloggad
+    from: config.email, // skapa så att den känner av vem som är inloggad
+    to: config.email,
     subject: 'Timelog',
-    text: 'Here are your working hours. Great job!'
+    text: '{{userName.userId}}' + 'Here are your working hours. Great job!'
 };
 
 
 
-// Connect to my DB 	
+
+
+// CONNECT TO MY DB
 mongoose.connect(`mongodb+srv://LejlaDolovac:guess123@cluster0-gxwz7.mongodb.net/test?retryWrites=true&w=majority`, { useNewUrlParser: true })	
     .then(() => {	
         console.info('Connected.')	;
@@ -48,27 +63,44 @@ mongoose.connect(`mongodb+srv://LejlaDolovac:guess123@cluster0-gxwz7.mongodb.net
     });
 
     
-    // Routs
+//ROUTES
 
     let postGetInformation = require('./routes/postGetInformation');
+    let monthCount = require('./routes/monthCount');
+    let editPosts = require('./routes/editPosts');
+
 
     app.route('/postGetInformation')
     .post(postGetInformation.post)
     .get(postGetInformation.get);
+    
+    app.route('/editPosts')
+    .post(editPosts.post);
 
+
+app.route('/monthCount')
+.post(monthCount.post);
+
+
+
+//SLACK
 
     app.post('/slack', async (req, res) => {
 
         let msg = req.body.text;
         let userName = req.body.user_name;
         let comment = req.body.msg;
+        let date = req.body.date;
 
-        const data = {
+
+        
+
+          const data = {
+        
             "userId": userName,
             "comment": msg,
-           // "time": time
+            "date": new Date()
         };
-        console.log(data);
 
         await UserInformation.create(data);
 
@@ -82,9 +114,16 @@ mongoose.connect(`mongodb+srv://LejlaDolovac:guess123@cluster0-gxwz7.mongodb.net
     });
 
 
-    // NODEMAILER
 
-    app.get('/mail', (req, res) =>{
+
+
+// NODEMAILER
+
+    app.post('/mail', (req, res) =>{
+
+        const userData = req.body;
+        mailOptions.text = jsonToTableHtmlString(userData);
+
         transporter.sendMail(mailOptions, function(error, info){
             if (error) {
               console.log(error);
@@ -94,13 +133,16 @@ mongoose.connect(`mongodb+srv://LejlaDolovac:guess123@cluster0-gxwz7.mongodb.net
           });
     });
 
+
+
+    
+
   // VIEW ENGINE SETUP
 
   app.engine('handlebars', exphbs());
   app.set('view engine', 'handlebars');
 
 
-  // BODY PARSER MIDDLEWARE
 
 
 
@@ -110,5 +152,5 @@ mongoose.connect(`mongodb+srv://LejlaDolovac:guess123@cluster0-gxwz7.mongodb.net
 
 
 app.listen(3000, () => {
-    console.info('Server is running: 3000.');
+    console.info('Server is running on: 3000.');
 });

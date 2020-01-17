@@ -9,6 +9,8 @@ const mongoose = require('mongoose');
 // auth login , ?
 router.get('/login', (req, res) =>{
     res.render('login', {user: req.user});
+    res.redirect('/');
+
 
 });
 

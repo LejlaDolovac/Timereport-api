@@ -1,21 +1,19 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20');
-const keys = require('./keys');
 const mongoose = require('mongoose');
+const config = require('../config');
 
 
 
 
 passport.use(
     new GoogleStrategy({
-    // options for google strategy
 
     callbackURL: '/auth/google/redirect',
-    clientID: 'keys.google.clientID',
-    clientSecret: 'keys.google.clientSecret'
+    clientID: config.google.clientID,
+    clientSecret: config.google.clientSecret,
 },(accessToken,refreshToken,profile, done) => {
 
-    // check if user already exists in our db
     User.findOne({googleId: profile.id}).then((currentUser) => {
        if(currentUser){
            console.log('User is:', currentUser);
