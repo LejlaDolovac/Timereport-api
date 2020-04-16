@@ -34,7 +34,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const mailOptions = {
-  from: config.email, // skapa så att den känner av vem som är inloggad
+  from: config.email,
   to: config.email,
   subject: "Timelog",
   text: "{{userName.userId}}" + "Here are your working hours. Great job!",
@@ -96,8 +96,13 @@ app.post("/slack", async (req, res) => {
 // NODEMAILER
 
 app.post("/mail", (req, res) => {
+  const htmlMailTop =
+    '<!DOCTYPE html><html style="margin: 0; padding: 0;"><head><title>One | Email template!</title></head><body style="margin: 0; padding: 0;">';
+  const htmlMailBottom = "</body></html>";
+
   const userData = req.body;
-  mailOptions.text = jsonToTableHtmlString(userData);
+  mailOptions.html =
+    htmlMailTop + jsonToTableHtmlString(userData) + htmlMailBottom;
 
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
