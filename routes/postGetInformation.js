@@ -24,22 +24,12 @@ module.exports.post = async (req, res, err) => {
 
 module.exports.getSpan = async (req, res) => {
   console.log("getSpan");
-
-  console.log(req.body.from);
-
   try {
     let User = await UserInformation.find({
-      date: { $gte: req.body.from, $lt: req.body.to }
+      date: { $gte: req.body.from, $lt: req.body.to },
     });
     res.status(200).send(User);
   } catch (err) {
     res.status(500).send(err);
   }
 };
-
-/*
-i FE skapa en knapp som gör GET och hämtar datumen, på detta viset ser det ut som olika boxar... 
-i BE , find({}) 
-skickar du med tex date.02 som argument och på detta settet skapar du ett filter
-
-*/

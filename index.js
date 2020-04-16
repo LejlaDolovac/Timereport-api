@@ -29,15 +29,15 @@ const transporter = nodemailer.createTransport({
   service: "hotmail",
   auth: {
     user: config.email,
-    pass: config.password
-  }
+    pass: config.password,
+  },
 });
 
 const mailOptions = {
   from: config.email, // skapa så att den känner av vem som är inloggad
   to: config.email,
   subject: "Timelog",
-  text: "{{userName.userId}}" + "Here are your working hours. Great job!"
+  text: "{{userName.userId}}" + "Here are your working hours. Great job!",
 };
 
 // CONNECT TO MY DB
@@ -49,7 +49,7 @@ mongoose
   .then(() => {
     console.info("Connected.");
   })
-  .catch(err => {
+  .catch((err) => {
     console.error(err);
   });
 
@@ -81,13 +81,13 @@ app.post("/slack", async (req, res) => {
   const data = {
     userId: userName,
     comment: msg,
-    date: new Date()
+    date: new Date(),
   };
 
   await UserInformation.create(data);
 
   const message = {
-    text: "Bra jobbat! Vi registrerar detta :)"
+    text: "Bra jobbat! Vi registrerar detta :)",
   };
 
   res.send(message);
@@ -99,7 +99,7 @@ app.post("/mail", (req, res) => {
   const userData = req.body;
   mailOptions.text = jsonToTableHtmlString(userData);
 
-  transporter.sendMail(mailOptions, function(error, info) {
+  transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
     } else {
